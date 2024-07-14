@@ -1,0 +1,88 @@
+import requests
+import os, tiktoken
+from flex_ai.api.datasets import create_dataset, generate_dataset_upload_urls
+from flex_ai.common import enums
+from flex_ai.data_loaders.loaders import validate_dataset
+from flex_ai.common.logger import get_logger
+import uuid
+
+logger = get_logger(__name__)
+
+from flex_ai.utils.tokenizers import load_default_tokenizer
+from flex_ai.utils.visualize import generate_report
+
+class FlexAI:
+    def __init__(self, api_key=None):
+        if api_key is None:
+            api_key = os.environ.get("FLEX_AI_API_KEY")
+        if not api_key:
+            raise ValueError("API key must be provided")
+        self.api_key = api_key
+
+    def validate_dataset(self, train_path:str, eval_path:str | None, type: enums.DatasetType):
+        tokenizer = load_default_tokenizer()
+        train_dataset, eval_dataset = validate_dataset(train_path, eval_path, type, tokenizer)
+
+        def tokenize_text(examples):
+            return {"num_tokens": [len(tokens) for tokens in tokenizer(examples["text"])["input_ids"]]}
+    
+        # Apply tokenization to the dataset and compute the maximum token size
+        train_dataset_with_tokens = train_dataset.map(tokenize_text, batched=True, num_proc=1)
+        max_seq_len_train = max(train_dataset_with_tokens["num_tokens"])
+
+        if eval_dataset:
+            eval_dataset_with_tokens = eval_dataset.map(tokenize_text, batched=True, num_proc=1)
+            max_seq_len_eval = max(eval_dataset_with_tokens["num_tokens"])
+        else:
+            max_seq_len_eval = None
+
+        # Print a report
+        report = generate_report(max_seq_len_train, max_seq_len_eval)
+        logger.info(report)
+        
+        return f"Using API key: {self.api_key}"
+    
+
+    def create_dataset(self, name:str, train_path:str, eval_path:str | None, type: enums.DatasetType):
+        tokenizer = load_default_tokenizer()
+        train_dataset, eval_dataset = validate_dataset(train_path, eval_path, type, tokenizer)
+
+        def tokenize_text(examples):
+            return {"num_tokens": [len(tokens) for tokens in tokenizer(examples["text"])["input_ids"]]}
+    
+        # Apply tokenization to the dataset and compute the maximum token size
+        train_dataset_with_tokens = train_dataset.map(tokenize_text, batched=True, num_proc=1)
+        max_seq_len_train = max(train_dataset_with_tokens["num_tokens"])
+
+        if eval_dataset:
+            eval_dataset_with_tokens = eval_dataset.map(tokenize_text, batched=True, num_proc=1)
+            max_seq_len_eval = max(eval_dataset_with_tokens["num_tokens"])
+        else:
+            max_seq_len_eval = None
+
+        dataset_id = str(uuid.uuid4())
+        # upload the train_path and eval_path to the server
+        train_upload_url, eval_upload_url = generate_dataset_upload_urls(self.api_key, dataset_id)
+        
+        # Upload the train dataset file to the server using the pre-signed URL
+        with open(train_path, 'rb') as f:
+            response = requests.put(train_upload_url, data=f)
+            if response.status_code == 200:
+                print("Train dataset uploaded successfully.")
+            else:
+                upload_success = False
+                print(f"Failed to upload train dataset. Status code: {response.status_code}")
+                return
+
+        if eval_path:
+            with open(eval_path, 'rb') as f:
+                response = requests.put(eval_upload_url, data=f)
+                if response.status_code == 200:
+                    print("Eval dataset uploaded successfully.")
+                else:
+                    print(f"Failed to upload eval dataset. Status code: {response.status_code}")
+                    return
+
+        create_dataset(self.api_key, dataset_id, name, len(train_dataset), len(eval_dataset) if eval_dataset else None, max_seq_len_train , type)
+        
+        return True
