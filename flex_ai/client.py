@@ -1,7 +1,10 @@
+from typing import Optional
 import requests
 import os, tiktoken
 from flex_ai.api.datasets import create_dataset, generate_dataset_upload_urls
+from flex_ai.api.fine_tunes import create_finetune
 from flex_ai.common import enums
+from flex_ai.common.classes import EarlyStoppingConfig, LoraConfig
 from flex_ai.data_loaders.loaders import validate_dataset
 from flex_ai.common.logger import get_logger
 import uuid
@@ -53,6 +56,7 @@ class FlexAI:
         # Apply tokenization to the dataset and compute the maximum token size
         train_dataset_with_tokens = train_dataset.map(tokenize_text, batched=True, num_proc=1)
         max_seq_len_train = max(train_dataset_with_tokens["num_tokens"])
+        total_train_tokens = sum(train_dataset_with_tokens["num_tokens"])
 
         if eval_dataset:
             eval_dataset_with_tokens = eval_dataset.map(tokenize_text, batched=True, num_proc=1)
@@ -83,6 +87,23 @@ class FlexAI:
                     print(f"Failed to upload eval dataset. Status code: {response.status_code}")
                     return
 
-        create_dataset(self.api_key, dataset_id, name, len(train_dataset), len(eval_dataset) if eval_dataset else None, max_seq_len_train , type)
+        create_dataset(self.api_key, dataset_id, name, len(train_dataset), len(eval_dataset) if eval_dataset else None, max_seq_len_train, total_train_tokens , type)
+        
+        return True
+    
+
+    def create_finetune(self, 
+                        name:str, dataset_id: str, 
+                        model: str, n_epochs: int,
+                        train_with_lora: bool,
+                        batch_size: Optional[int] = None, learning_rate: Optional[float] = None,
+                        n_checkpoints_and_evaluations_per_epoch: Optional[int] = None,
+                        save_only_best_checkpoint: bool = False,
+                        lora_config: Optional[LoraConfig] | None = None,
+                        early_stopping_config: Optional[EarlyStoppingConfig] | None = None):
+
+        create_finetune(api_key=self.api_key, name=name, dataset_id=dataset_id, model=model, n_epochs=n_epochs, batch_size=batch_size, 
+                        learning_rate=learning_rate,n_checkpoints_and_evaluations_per_epoch=n_checkpoints_and_evaluations_per_epoch,
+                        save_only_best_checkpoint=save_only_best_checkpoint, train_with_lora=train_with_lora, lora_config=lora_config, early_stopping_config=early_stopping_config)
         
         return True
