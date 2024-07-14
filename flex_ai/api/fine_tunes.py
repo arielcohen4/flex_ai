@@ -50,9 +50,9 @@ def create_finetune(api_key:str, name:str, dataset_id: str,
     if save_only_best_checkpoint is not None:
         payload["save_only_best_checkpoint"] = save_only_best_checkpoint
     if lora_config is not None:
-        payload["lora_config"] = lora_config.dict()  # Convert Pydantic model to dictionary
+        payload["lora_config"] = lora_config  # Convert Pydantic model to dictionary
     if early_stopping_config is not None:
-        payload["early_stopping_config"] = early_stopping_config.dict()  # Convert Pydantic model to dictionary
+        payload["early_stopping_config"] = early_stopping_config  # Convert Pydantic model to dictionary
 
     response = requests.post(url, json=payload, headers=headers)
     data = response.json()
