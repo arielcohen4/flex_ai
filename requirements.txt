@@ -1,4 +1,10 @@
-tiktoken
 datasets
 matplotlib
 pydantic
+requests
+colorama
+transformers
+pandas
+datasets
+torch
+matplotlib

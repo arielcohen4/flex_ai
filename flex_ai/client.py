@@ -1,6 +1,6 @@
 from typing import Optional
 import requests
-import os, tiktoken
+import os
 from flex_ai.api.datasets import create_dataset, generate_dataset_upload_urls
 from flex_ai.api.fine_tunes import create_finetune
 from flex_ai.common import enums
