@@ -4,9 +4,11 @@ import requests
 from flex_ai.common.classes import EarlyStoppingConfig, LoraConfig
 from flex_ai.common.enums import DatasetType
 
+BASE_URL = "https://api.getflex.ai"
+
 # send api key in the header
 def generate_dataset_upload_urls(api_key:str, dataset_id:str):
-    url = "http://localhost:8000/v1/datasets/generate_upload_urls"
+    url = f"{BASE_URL}/v1/datasets/generate_upload_urls"
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json"
@@ -26,7 +28,7 @@ def create_finetune(api_key:str, name:str, dataset_id: str,
                         lora_config: Optional[LoraConfig] | None = None,
                         early_stopping_config: Optional[EarlyStoppingConfig] | None = None):
     
-    url = "http://localhost:8000/v1/fine_tunes/create_finetune"
+    url = f"{BASE_URL}/v1/fine_tunes/create_finetune"
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json"

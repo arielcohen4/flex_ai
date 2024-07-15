@@ -2,7 +2,7 @@ from flex_ai import FlexAI, DatasetType
 
 client = FlexAI(api_key="ed8ef09e-3ca0-4080-bd93-761fa5428d65")
 
-# client.create_dataset("My Dataset New","instruction/train.jsonl", "instruction/eval.jsonl", DatasetType.INSTRUCTION)
+client.create_dataset("API Dataset New","instruction/train.jsonl", "instruction/eval.jsonl", DatasetType.INSTRUCTION)
 
 client.create_finetune(name="My Task New", 
                        dataset_id="52c68b52-12f1-4c51-97ac-4434c85357e2",

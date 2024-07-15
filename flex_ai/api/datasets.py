@@ -1,10 +1,10 @@
 import requests
 
 from flex_ai.common.enums import DatasetType
-
+BASE_URL = "https://api.getflex.ai"
 # send api key in the header
 def generate_dataset_upload_urls(api_key:str, dataset_id:str):
-    url = "http://localhost:8000/v1/datasets/generate_upload_urls"
+    url = f"{BASE_URL}/v1/datasets/generate_upload_urls"
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json"
@@ -16,7 +16,7 @@ def generate_dataset_upload_urls(api_key:str, dataset_id:str):
     return data["train_upload_url"], data["eval_upload_url"]
 
 def create_dataset(api_key:str, dataset_id: str, name:str, train_rows_count:int, eval_rows_count:int, max_tokens:int, total_tokens:int, type: DatasetType):
-    url = "http://localhost:8000/v1/datasets/create_dataset"
+    url = f"{BASE_URL}/v1/datasets/create_dataset"
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json"
