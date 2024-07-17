@@ -97,12 +97,13 @@ class FlexAI:
                         model: str, n_epochs: int,
                         train_with_lora: bool,
                         batch_size: Optional[int] = None, learning_rate: Optional[float] = None,
+                        wandb_key: Optional[str] = None,
                         n_checkpoints_and_evaluations_per_epoch: Optional[int] = None,
                         save_only_best_checkpoint: bool = False,
                         lora_config: Optional[LoraConfig] | None = None,
                         early_stopping_config: Optional[EarlyStoppingConfig] | None = None):
 
-        create_finetune(api_key=self.api_key, name=name, dataset_id=dataset_id, model=model, n_epochs=n_epochs, batch_size=batch_size, 
+        create_finetune(api_key=self.api_key, name=name, dataset_id=dataset_id, model=model, n_epochs=n_epochs, batch_size=batch_size, wandb_key=wandb_key,
                         learning_rate=learning_rate,n_checkpoints_and_evaluations_per_epoch=n_checkpoints_and_evaluations_per_epoch,
                         save_only_best_checkpoint=save_only_best_checkpoint, train_with_lora=train_with_lora, lora_config=lora_config, early_stopping_config=early_stopping_config)
         

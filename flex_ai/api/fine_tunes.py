@@ -5,7 +5,7 @@ from flex_ai.common.classes import EarlyStoppingConfig, LoraConfig
 from flex_ai.common.enums import DatasetType
 
 BASE_URL = "https://api.getflex.ai"
-
+# BASE_URL = "http://localhost:8080"
 # send api key in the header
 def generate_dataset_upload_urls(api_key:str, dataset_id:str):
     url = f"{BASE_URL}/v1/datasets/generate_upload_urls"
@@ -26,6 +26,7 @@ def create_finetune(api_key:str, name:str, dataset_id: str,
                         n_checkpoints_and_evaluations_per_epoch: Optional[int] = None,
                         save_only_best_checkpoint: bool = False,
                         lora_config: Optional[LoraConfig] | None = None,
+                        wandb_key: Optional[str] = None,
                         early_stopping_config: Optional[EarlyStoppingConfig] | None = None):
     
     url = f"{BASE_URL}/v1/fine_tunes/create_finetune"
@@ -45,6 +46,8 @@ def create_finetune(api_key:str, name:str, dataset_id: str,
         payload["n_epochs"] = n_epochs
     if batch_size is not None:
         payload["batch_size"] = batch_size
+    if wandb_key is not None:
+        payload["wandb_key"] = wandb_key
     if learning_rate is not None:
         payload["learning_rate"] = learning_rate
     if n_checkpoints_and_evaluations_per_epoch is not None:
