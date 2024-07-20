@@ -66,4 +66,4 @@ def create_finetune(api_key:str, name:str, dataset_id: str,
     if response.status_code != 200:
         raise Exception(response.json()["detail"])
     data = response.json()
-    return data
+    return data[0]
