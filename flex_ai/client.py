@@ -87,9 +87,11 @@ class FlexAI:
                     print(f"Failed to upload eval dataset. Status code: {response.status_code}")
                     return
 
-        create_dataset(self.api_key, dataset_id, name, len(train_dataset), len(eval_dataset) if eval_dataset else None, max_seq_len_train, total_train_tokens , type)
+        new_dataset = create_dataset(self.api_key, dataset_id, name, len(train_dataset), len(eval_dataset) if eval_dataset else None, max_seq_len_train, total_train_tokens , type)
+        print("New Dataset created successfully.")
+        print(new_dataset)
         
-        return True
+        return new_dataset
     
 
     def create_finetune(self, 

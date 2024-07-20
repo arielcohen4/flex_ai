@@ -4,8 +4,8 @@ import requests
 from flex_ai.common.classes import EarlyStoppingConfig, LoraConfig
 from flex_ai.common.enums import DatasetType
 
-BASE_URL = "https://api.getflex.ai"
-# BASE_URL = "http://localhost:8080"
+# BASE_URL = "https://api.getflex.ai"
+BASE_URL = "http://localhost:8080"
 # send api key in the header
 def generate_dataset_upload_urls(api_key:str, dataset_id:str):
     url = f"{BASE_URL}/v1/datasets/generate_upload_urls"
@@ -16,6 +16,8 @@ def generate_dataset_upload_urls(api_key:str, dataset_id:str):
     payload = {"id": dataset_id}
 
     response = requests.post(url, json=payload, headers=headers)
+    if response.status_code != 200:
+        raise Exception(response.json()["detail"])
     data = response.json()
     return data["train_upload_url"], data["eval_upload_url"]
 
@@ -60,5 +62,8 @@ def create_finetune(api_key:str, name:str, dataset_id: str,
         payload["early_stopping_config"] = early_stopping_config  # Convert Pydantic model to dictionary
 
     response = requests.post(url, json=payload, headers=headers)
+
+    if response.status_code != 200:
+        raise Exception(response.json()["detail"])
     data = response.json()
     return data

@@ -13,6 +13,8 @@ def generate_dataset_upload_urls(api_key:str, dataset_id:str):
     payload = {"id": dataset_id}
 
     response = requests.post(url, json=payload, headers=headers)
+    if response.status_code != 200:
+        raise Exception(response.json()["detail"])
     data = response.json()
     return data["train_upload_url"], data["eval_upload_url"]
 
@@ -25,5 +27,9 @@ def create_dataset(api_key:str, dataset_id: str, name:str, train_rows_count:int,
     payload = {"id": dataset_id, "name": name, "train_rows_count": train_rows_count, "eval_rows_count": eval_rows_count, "max_tokens": max_tokens, "total_tokens": total_tokens, "type": type.value}
 
     response = requests.post(url, json=payload, headers=headers)
+
+    if response.status_code != 200:
+        raise Exception(response.json()["detail"])
+    
     data = response.json()
-    return True
+    return data[0]
