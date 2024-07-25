@@ -1,8 +1,7 @@
 import requests
-
 from flex_ai.common.enums import DatasetType
-BASE_URL = "https://api.getflex.ai"
-# BASE_URL = "http://localhost:8080"
+from flex_ai.settings import BASE_URL
+
 # send api key in the header
 def generate_dataset_upload_urls(api_key:str, dataset_id:str):
     url = f"{BASE_URL}/v1/datasets/generate_upload_urls"
@@ -33,3 +32,21 @@ def create_dataset(api_key:str, dataset_id: str, name:str, train_rows_count:int,
     
     data = response.json()
     return data[0]
+
+def get_datasets(api_key:str):
+    url = f"{BASE_URL}/v1/datasets"
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+
+    response = requests.get(url, headers=headers)
+
+    if response.status_code != 200:
+        raise Exception(response.json()["detail"])
+    
+    data = response.json()
+    return data
+
+
+

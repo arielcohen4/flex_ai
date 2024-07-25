@@ -10,7 +10,7 @@ def parse_requirements(filename):
 
 setup(
     name="flex_ai",
-    version="0.21",
+    version="0.22",
     packages=find_packages(),
     install_requires=parse_requirements('requirements.txt'),
     author="Ariel Cohen",
@@ -25,4 +25,9 @@ setup(
         "Operating System :: OS Independent",
     ],
     python_requires='>=3.6',
+     entry_points={
+        'console_scripts': [
+            'flex_ai=flex_ai.cli:main',
+        ],
+    },
 )

@@ -1,7 +1,10 @@
+import json
 from typing import Optional
 import requests
 import os
-from flex_ai.api.datasets import create_dataset, generate_dataset_upload_urls
+from flex_ai.api.datasets import create_dataset, generate_dataset_upload_urls, get_datasets
+from flex_ai.api.models import get_models
+from flex_ai.api.tasks import get_task
 from flex_ai.api.fine_tunes import create_finetune
 from flex_ai.common import enums
 from flex_ai.common.classes import EarlyStoppingConfig, LoraConfig
@@ -89,9 +92,38 @@ class FlexAI:
 
         new_dataset = create_dataset(self.api_key, dataset_id, name, len(train_dataset), len(eval_dataset) if eval_dataset else None, max_seq_len_train, total_train_tokens , type)
         print("New Dataset created successfully.")
-        print(new_dataset)
+        print(json.dumps(new_dataset, indent=4, sort_keys=True))
         
         return new_dataset
+    
+
+    def get_datasets(self):
+        my_datasets = get_datasets(self.api_key)
+        print("Datasets:")
+        print(json.dumps(my_datasets, indent=4, sort_keys=True))
+        
+        return my_datasets
+    
+    def get_models(self):
+        available_models = get_models(self.api_key)
+
+        # Remove the default_config key from each model
+        for model in available_models:
+            if 'default_config' in model:
+                del model['default_config']
+
+        print("Available Models:")
+        print(json.dumps(available_models, indent=4, sort_keys=True))
+        
+        return available_models
+    
+    def get_task(self, id:str):
+        task = get_task(self.api_key, id)
+        del task['config']
+        print("Available Models:")
+        print(json.dumps(task, indent=4, sort_keys=True))
+        
+        return task
     
 
     def create_finetune(self, 
@@ -110,6 +142,6 @@ class FlexAI:
                         save_only_best_checkpoint=save_only_best_checkpoint, train_with_lora=train_with_lora, lora_config=lora_config, early_stopping_config=early_stopping_config)
         
         print("New Task created successfully.")
-        print(new_task)
+        print(json.dumps(new_task, indent=4, sort_keys=True))
         
         return new_task
