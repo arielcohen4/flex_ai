@@ -2,10 +2,8 @@ from typing import Any, Dict, Optional
 import requests
 
 from flex_ai.common.classes import EarlyStoppingConfig, LoraConfig
-from flex_ai.common.enums import DatasetType
+from flex_ai.settings import BASE_URL
 
-# BASE_URL = "https://api.getflex.ai"
-BASE_URL = "http://localhost:8080"
 # send api key in the header
 def generate_dataset_upload_urls(api_key:str, dataset_id:str):
     url = f"{BASE_URL}/v1/datasets/generate_upload_urls"
