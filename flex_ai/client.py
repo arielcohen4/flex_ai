@@ -106,12 +106,6 @@ class FlexAI:
     
     def get_models(self):
         available_models = get_models(self.api_key)
-
-        # Remove the default_config key from each model
-        for model in available_models:
-            if 'default_config' in model:
-                del model['default_config']
-
         print("Available Models:")
         print(json.dumps(available_models, indent=4, sort_keys=True))
         
@@ -119,8 +113,7 @@ class FlexAI:
     
     def get_task(self, id:str):
         task = get_task(self.api_key, id)
-        del task['config']
-        print("Available Models:")
+        print("Tasks:")
         print(json.dumps(task, indent=4, sort_keys=True))
         
         return task
