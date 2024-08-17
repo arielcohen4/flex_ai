@@ -69,7 +69,7 @@ class FlexAI:
 
         dataset_id = str(uuid.uuid4())
         # upload the train_path and eval_path to the server
-        train_upload_url, eval_upload_url = generate_dataset_upload_urls(self.api_key, dataset_id)
+        train_upload_url, eval_upload_url, storage_type = generate_dataset_upload_urls(self.api_key, dataset_id)
         
         # Upload the train dataset file to the server using the pre-signed URL
         with open(train_path, 'rb') as f:
@@ -90,7 +90,7 @@ class FlexAI:
                     print(f"Failed to upload eval dataset. Status code: {response.status_code}")
                     return
 
-        new_dataset = create_dataset(self.api_key, dataset_id, name, len(train_dataset), len(eval_dataset) if eval_dataset else None, max_seq_len_train, total_train_tokens , type)
+        new_dataset = create_dataset(self.api_key, dataset_id, name, len(train_dataset), len(eval_dataset) if eval_dataset else None, max_seq_len_train, total_train_tokens , type, storage_type)
         print("New Dataset created successfully.")
         print(json.dumps(new_dataset, indent=4, sort_keys=True))
         
