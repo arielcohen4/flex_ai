@@ -6,11 +6,12 @@ from datasets import Dataset
 import pandas as pd
 from flex_ai.common.logger import get_logger
 from transformers import PreTrainedTokenizerBase
+from typing import Union
 
 logger = get_logger(__name__)
 
 
-def validate_dataset(train_path:str, eval_path:str | None, type: enums.DatasetType, tokenizer: PreTrainedTokenizerBase):
+def validate_dataset(train_path:str, eval_path:Union[str, None], type: enums.DatasetType, tokenizer: PreTrainedTokenizerBase):
     train_data = read_jsonl(train_path)
     eval_data = read_jsonl(eval_path)
 

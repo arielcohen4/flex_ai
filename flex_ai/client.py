@@ -1,5 +1,5 @@
 import json
-from typing import Optional
+from typing import Optional, Union
 import requests
 import os
 from flex_ai.api.datasets import create_dataset, download_checkpoint, download_checkpoint_gguf, generate_dataset_upload_urls, get_datasets
@@ -27,7 +27,7 @@ class FlexAI:
             raise ValueError("API key must be provided")
         self.api_key = api_key
 
-    def validate_dataset(self, train_path:str, eval_path:str | None, type: enums.DatasetType):
+    def validate_dataset(self, train_path:str, eval_path:Union[str, None], type: enums.DatasetType):
         tokenizer = load_default_tokenizer()
         train_dataset, eval_dataset = validate_dataset(train_path, eval_path, type, tokenizer)
 
@@ -51,7 +51,7 @@ class FlexAI:
         return f"Using API key: {self.api_key}"
     
 
-    def create_dataset(self, name:str, train_path:str, eval_path:str | None, type: enums.DatasetType):
+    def create_dataset(self, name:str, train_path:str, eval_path:Union[str, None], type: enums.DatasetType):
         tokenizer = load_default_tokenizer()
         train_dataset, eval_dataset = validate_dataset(train_path, eval_path, type, tokenizer)
 
@@ -148,8 +148,8 @@ class FlexAI:
                         wandb_key: Optional[str] = None,
                         n_checkpoints_and_evaluations_per_epoch: Optional[int] = None,
                         save_only_best_checkpoint: bool = False,
-                        lora_config: Optional[LoraConfig] | None = None,
-                        early_stopping_config: Optional[EarlyStoppingConfig] | None = None):
+                        lora_config: Union[Optional[LoraConfig], None] = None,
+                        early_stopping_config: Union[Optional[EarlyStoppingConfig], None] = None):
 
         new_task = create_finetune(api_key=self.api_key, name=name, dataset_id=dataset_id, model=model, n_epochs=n_epochs, batch_size=batch_size, wandb_key=wandb_key,
                         learning_rate=learning_rate,n_checkpoints_and_evaluations_per_epoch=n_checkpoints_and_evaluations_per_epoch,

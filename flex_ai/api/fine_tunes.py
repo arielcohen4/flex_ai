@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Union
 import requests
 
 from flex_ai.common.classes import EarlyStoppingConfig, LoraConfig
@@ -25,9 +25,9 @@ def create_finetune(api_key:str, name:str, dataset_id: str,
                         batch_size: Optional[int] = None, learning_rate: Optional[float] = None,
                         n_checkpoints_and_evaluations_per_epoch: Optional[int] = None,
                         save_only_best_checkpoint: bool = False,
-                        lora_config: Optional[LoraConfig] | None = None,
+                        lora_config: Union[Optional[LoraConfig], None] = None,
                         wandb_key: Optional[str] = None,
-                        early_stopping_config: Optional[EarlyStoppingConfig] | None = None):
+                        early_stopping_config: Union[Optional[EarlyStoppingConfig], None] = None):
     
     url = f"{BASE_URL}/v1/fine_tunes/create_finetune"
     headers = {
