@@ -123,5 +123,23 @@ def create_finetune(name, dataset_id, model, n_epochs, train_with_lora, batch_si
         early_stopping_config=early_stopping_config
     )
     
+# Checkpoints commands
+@main.group()
+def checkpoints():
+    """Commands related to checkpoints."""
+    pass
+
+@checkpoints.command(name='download-gguf')
+@click.option('--checkpoint-id', required=True, help="ID of the checkpoint to download")
+def download_checkpoint_gguf(checkpoint_id):
+    """Download a checkpoint in GGUF format."""
+    client.download_checkpoint_gguf(checkpoint_id)
+
+@checkpoints.command(name='download')
+@click.option('--checkpoint-id', required=True, help="ID of the checkpoint to download")
+def download_checkpoint(checkpoint_id):
+    """Download a checkpoint in GGUF format."""
+    client.download_checkpoint(checkpoint_id)
+
 if __name__ == '__main__':
     main()

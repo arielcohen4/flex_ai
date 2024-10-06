@@ -48,5 +48,35 @@ def get_datasets(api_key:str):
     data = response.json()
     return data
 
+def download_checkpoint_gguf(api_key:str, checkpoint_id:str):
+    url = f"{BASE_URL}/v1/checkpoints/download_gguf"
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+
+    response = requests.post(url, json={"id": checkpoint_id}, headers=headers)
+
+    if response.status_code != 200:
+        raise Exception(response.json()["detail"])
+    
+    data = response.json()["url"]
+    return data
+
+def download_checkpoint(api_key:str, checkpoint_id:str):
+    url = f"{BASE_URL}/v1/checkpoints/download"
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+
+    response = requests.post(url, json={"id": checkpoint_id}, headers=headers)
+
+    if response.status_code != 200:
+        raise Exception(response.json()["detail"])
+    
+    data = response.json()["url"]
+    return data
+
 
 

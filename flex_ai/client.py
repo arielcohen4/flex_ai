@@ -2,15 +2,17 @@ import json
 from typing import Optional
 import requests
 import os
-from flex_ai.api.datasets import create_dataset, generate_dataset_upload_urls, get_datasets
+from flex_ai.api.datasets import create_dataset, download_checkpoint, download_checkpoint_gguf, generate_dataset_upload_urls, get_datasets
 from flex_ai.api.models import get_models
 from flex_ai.api.tasks import get_task
 from flex_ai.api.fine_tunes import create_finetune
+from flex_ai.api.checkpoints import get_checkpoint
 from flex_ai.common import enums
 from flex_ai.common.classes import EarlyStoppingConfig, LoraConfig
 from flex_ai.data_loaders.loaders import validate_dataset
 from flex_ai.common.logger import get_logger
 import uuid
+from flex_ai.utils.conversions import download_and_extract_tar_zst
 
 logger = get_logger(__name__)
 
@@ -104,6 +106,18 @@ class FlexAI:
         
         return my_datasets
     
+    def download_checkpoint_gguf(self, checkpoint_id:str):
+        checkpoint = get_checkpoint(self.api_key, checkpoint_id)
+        step = checkpoint["step"]
+        url = download_checkpoint_gguf(self.api_key, checkpoint_id)
+        download_and_extract_tar_zst(f"{checkpoint_id}-checkpoint-gguf-step-{step}", url)
+    
+    def download_checkpoint(self, checkpoint_id:str):
+        checkpoint = get_checkpoint(self.api_key, checkpoint_id)
+        step = checkpoint["step"]
+        url = download_checkpoint(self.api_key, checkpoint_id)
+        download_and_extract_tar_zst(f"{checkpoint_id}-checkpoint-step-{step}", url)
+    
     def get_models(self):
         available_models = get_models(self.api_key)
         print("Available Models:")
@@ -117,6 +131,13 @@ class FlexAI:
         print(json.dumps(task, indent=4, sort_keys=True))
         
         return task
+    
+    def get_checkpoint(self, id:str):
+        checkpoint = get_checkpoint(self.api_key, id)
+        print("Tasks:")
+        print(json.dumps(checkpoint, indent=4, sort_keys=True))
+        
+        return checkpoint
     
 
     def create_finetune(self, 
