@@ -32,10 +32,10 @@ def list_datasets():
 @click.option('--name', required=True, help="Name of the new dataset")
 @click.option('--train-path', required=True, help="Path to the training data file")
 @click.option('--eval-path', help="Path to the evaluation data file")
-def create_dataset(name, train_path, eval_path, type):
+def create_dataset(name, train_path, eval_path):
     """Create a new dataset."""
     # Implement the logic to create a new dataset
-    print(f"Creating dataset: {name}, {train_path}, {eval_path}, {type}")
+    print(f"Creating dataset: {name}, {train_path}, {eval_path}")
     client.create_dataset(name, train_path, eval_path)
 
 # Models commands
