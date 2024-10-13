@@ -27,9 +27,9 @@ class FlexAI:
             raise ValueError("API key must be provided")
         self.api_key = api_key
 
-    def validate_dataset(self, train_path:str, eval_path:Union[str, None], type: enums.DatasetType):
+    def validate_dataset(self, train_path:str, eval_path:Union[str, None]):
         tokenizer = load_default_tokenizer()
-        train_dataset, eval_dataset = validate_dataset(train_path, eval_path, type, tokenizer)
+        train_dataset, eval_dataset = validate_dataset(train_path, eval_path, tokenizer)
 
         def tokenize_text(examples):
             return {"num_tokens": [len(tokens) for tokens in tokenizer(examples["text"])["input_ids"]]}
@@ -51,9 +51,9 @@ class FlexAI:
         return f"Using API key: {self.api_key}"
     
 
-    def create_dataset(self, name:str, train_path:str, eval_path:Union[str, None], type: enums.DatasetType):
+    def create_dataset(self, name:str, train_path:str, eval_path:Union[str, None]):
         tokenizer = load_default_tokenizer()
-        train_dataset, eval_dataset = validate_dataset(train_path, eval_path, type, tokenizer)
+        train_dataset, eval_dataset = validate_dataset(train_path, eval_path, tokenizer)
 
         def tokenize_text(examples):
             return {"num_tokens": [len(tokens) for tokens in tokenizer(examples["text"])["input_ids"]]}

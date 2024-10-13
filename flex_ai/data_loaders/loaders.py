@@ -10,12 +10,34 @@ from typing import Union
 
 logger = get_logger(__name__)
 
+def _validate_dataset_type(json_row):
+    # Check for Instruction type
+    if isinstance(json_row, dict) and 'instruction' in json_row and 'output' in json_row:
+        return enums.DatasetType.INSTRUCTION
+    
+    # Check for Chat type
+    if isinstance(json_row, list) and all(isinstance(item, dict) and 'role' in item and 'content' in item for item in json_row):
+        return enums.DatasetType.CHAT
+    
+    # Check for Text type
+    if isinstance(json_row, dict) and 'text' in json_row:
+        return enums.DatasetType.TEXT
+    
+    return None
 
-def validate_dataset(train_path:str, eval_path:Union[str, None], type: enums.DatasetType, tokenizer: PreTrainedTokenizerBase):
+def validate_dataset(train_path:str, eval_path:Union[str, None], tokenizer: PreTrainedTokenizerBase):
     train_data = read_jsonl(train_path)
     eval_data = read_jsonl(eval_path)
 
-    if type == enums.DatasetType.CHAT:
+    train_dataset_type = _validate_dataset_type(train_data[0])
+    eval_dataset_type = _validate_dataset_type(eval_data[0])
+
+    if eval_path is not None and train_dataset_type != eval_dataset_type:
+        raise ValueError(f"Train dataset type is {train_dataset_type} while eval dataset type is {eval_dataset_type}. They need to be equal")
+    
+    logger.info(f"Dataset type is {train_dataset_type}")
+
+    if train_dataset_type == enums.DatasetType.CHAT:
         train_data = ensure_spaces_between_chat_completions_separators(train_data)
         eval_data = ensure_spaces_between_chat_completions_separators(eval_data)
 
@@ -29,7 +51,7 @@ def validate_dataset(train_path:str, eval_path:Union[str, None], type: enums.Dat
         ]
         train_dataset = Dataset.from_pandas(pd.DataFrame(transformed_train_data)).shuffle(seed=42)
         eval_dataset = Dataset.from_pandas(pd.DataFrame(transformed_eval_data)).shuffle(seed=42)
-    elif type == enums.DatasetType.INSTRUCTION:
+    elif train_dataset_type == enums.DatasetType.INSTRUCTION:
         train_data, eval_data = convert_instruction_dataset_to_chat_dataset(train_data, eval_data)
         train_data = ensure_spaces_between_chat_completions_separators(train_data)
         eval_data = ensure_spaces_between_chat_completions_separators(eval_data)
@@ -44,7 +66,7 @@ def validate_dataset(train_path:str, eval_path:Union[str, None], type: enums.Dat
         ]
         train_dataset = Dataset.from_pandas(pd.DataFrame(transformed_train_data)).shuffle(seed=42)
         eval_dataset = Dataset.from_pandas(pd.DataFrame(transformed_eval_data)).shuffle(seed=42)
-    elif type == enums.DatasetType.TEXT:
+    elif train_dataset_type == enums.DatasetType.TEXT:
         train_dataset = Dataset.from_pandas(pd.DataFrame(train_data)).shuffle(seed=42)
         eval_dataset = Dataset.from_pandas(pd.DataFrame(eval_data)).shuffle(seed=42)
 
