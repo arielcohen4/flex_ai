@@ -53,7 +53,7 @@ class FlexAI:
 
     def create_dataset(self, name:str, train_path:str, eval_path:Union[str, None]):
         tokenizer = load_default_tokenizer()
-        train_dataset, eval_dataset = validate_dataset(train_path, eval_path, tokenizer)
+        train_dataset, eval_dataset, dataset_type = validate_dataset(train_path, eval_path, tokenizer)
 
         def tokenize_text(examples):
             return {"num_tokens": [len(tokens) for tokens in tokenizer(examples["text"])["input_ids"]]}
@@ -92,7 +92,7 @@ class FlexAI:
                     print(f"Failed to upload eval dataset. Status code: {response.status_code}")
                     return
 
-        new_dataset = create_dataset(self.api_key, dataset_id, name, len(train_dataset), len(eval_dataset) if eval_dataset else None, max_seq_len_train, total_train_tokens , type, storage_type)
+        new_dataset = create_dataset(self.api_key, dataset_id, name, len(train_dataset), len(eval_dataset) if eval_dataset else None, max_seq_len_train, total_train_tokens , dataset_type, storage_type)
         print("New Dataset created successfully.")
         print(json.dumps(new_dataset, indent=4, sort_keys=True))
         

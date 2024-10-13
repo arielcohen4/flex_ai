@@ -70,7 +70,7 @@ def validate_dataset(train_path:str, eval_path:Union[str, None], tokenizer: PreT
         train_dataset = Dataset.from_pandas(pd.DataFrame(train_data)).shuffle(seed=42)
         eval_dataset = Dataset.from_pandas(pd.DataFrame(eval_data)).shuffle(seed=42)
 
-    return train_dataset, eval_dataset
+    return train_dataset, eval_dataset, train_dataset_type
 
 def _log_transformed_dpo_examples(train_data, eval_data):
         logger.info("Train dataset chat example after model template for DPO:")
