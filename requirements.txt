@@ -11,3 +11,4 @@ matplotlib
 click
 numpy==1.26.4
 zstandard
+tqdm

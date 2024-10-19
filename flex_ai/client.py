@@ -1,18 +1,21 @@
 import json
-from typing import Optional, Union
+import time
+from typing import List, Optional, Union
 import requests
 import os
 from flex_ai.api.datasets import create_dataset, download_checkpoint, download_checkpoint_gguf, generate_dataset_upload_urls, get_datasets
+from flex_ai.api.endpoints import create_multi_lora_endpoint, get_endpoint
 from flex_ai.api.models import get_models
-from flex_ai.api.tasks import get_task
+from flex_ai.api.tasks import get_task, get_task_checkpoints
 from flex_ai.api.fine_tunes import create_finetune
 from flex_ai.api.checkpoints import get_checkpoint
 from flex_ai.common import enums
-from flex_ai.common.classes import EarlyStoppingConfig, LoraConfig
+from flex_ai.common.classes import EarlyStoppingConfig, LoraCheckpoint, LoraConfig
 from flex_ai.data_loaders.loaders import validate_dataset
 from flex_ai.common.logger import get_logger
 import uuid
 from flex_ai.utils.conversions import download_and_extract_tar_zst
+from tqdm.auto import tqdm
 
 logger = get_logger(__name__)
 
@@ -132,6 +135,11 @@ class FlexAI:
         
         return task
     
+    def get_task_checkpoints(self, task_id:str):
+        checkpoints = get_task_checkpoints(self.api_key, task_id)
+        
+        return checkpoints
+    
     def get_checkpoint(self, id:str):
         checkpoint = get_checkpoint(self.api_key, id)
         print("Tasks:")
@@ -159,3 +167,91 @@ class FlexAI:
         print(json.dumps(new_task, indent=4, sort_keys=True))
         
         return new_task
+
+    def wait_for_task_completion(self, task_id: str, interval: int = 1):
+        """
+        Periodically checks the status of a task until it reaches a final state.
+        This method will block the main thread until the task is completed.
+        
+        :param task_id: The ID of the task to check.
+        :param interval: The number of seconds to wait between checks (default is 10).
+        :return: The final task status.
+        """
+        final_statuses = ["COMPLETED", "ERRORED", "CANCELED"]
+
+        task = get_task(self.api_key, task_id)
+        model_name = task["models"]["name"]
+        dataset_name = task["datasets"]["name"]
+        task_name = task["name"]
+        
+        print(f"Monitoring task {task_name}...")
+
+        print(f"LLM model {model_name}")
+        print(f"Dataset {dataset_name}")
+        print(f"")
+
+        step_progress = tqdm(total=100, bar_format='{l_bar}{bar}| {n_fmt}/{total_fmt}', desc="Steps", ncols=70)
+        epoch_info = tqdm(total=0, bar_format='{desc}', desc="Epoch: 0/0", leave=False)
+        
+        last_step = 0
+        last_epoch = 0
+        
+        try:
+            while True:
+                task = get_task(self.api_key, task_id)
+                status = task.get("stage")
+                current_epoch = 0 if task.get("current_epoch") is None else task.get("current_epoch")
+                total_steps = 100 if task.get("total_steps") is None else task.get("total_steps")
+                current_step = 0 if task.get("current_step") is None else task.get("current_step")
+                total_epochs = 0 if task.get("total_epochs") is None else task.get("total_epochs")
+                
+                # Update step progress
+                step_progress.total = total_steps
+                step_progress.update(current_step - last_step)
+                last_step = current_step
+                
+                # Update epoch information
+                if current_epoch != last_epoch or total_epochs != epoch_info.total:
+                    epoch_info.total = total_epochs
+                    epoch_info.set_description_str(f"Epoch: {current_epoch}/{total_epochs}")
+                    last_epoch = current_epoch
+                
+                if status in final_statuses:
+                    step_progress.close()
+                    epoch_info.close()
+                    return status
+                
+                time.sleep(interval)
+        except KeyboardInterrupt:
+            step_progress.close()
+            epoch_info.close()
+            print("\nTask monitoring interrupted by user.")
+            return None
+    
+    def create_multi_lora_endpoint(self, name:str, lora_checkpoints: List[LoraCheckpoint]) -> str:
+        data = create_multi_lora_endpoint(self.api_key, name, lora_checkpoints)
+        print("New Endpoint created successfully.")
+        
+        return data["endpoint_id"]
+
+    def wait_for_endpoint_ready(self, endpoint_id: str, interval: int = 1):
+        final_statuses = ["LIVE"]
+
+        endpoint = get_endpoint(self.api_key, endpoint_id)
+        endpoint_name = endpoint["name"]
+
+        print(f"Initializing endpoint {endpoint_name}...")
+
+        try:
+            while True:
+                endpoint = get_endpoint(self.api_key, endpoint_id)
+                status = endpoint.get("stage")
+                
+                if status in final_statuses:
+                    print(f"Endpoint {endpoint_name} is ready.")
+                    return endpoint
+                
+                time.sleep(interval)
+        except KeyboardInterrupt:
+            print("\nEndpoint monitoring interrupted by user.")
+            return None

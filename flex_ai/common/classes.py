@@ -20,3 +20,7 @@ class CreateFinetuneRequest(BaseModel):
     train_with_lora: bool
     lora_config: LoraConfig
     early_stopping_config: EarlyStoppingConfig
+
+class LoraCheckpoint(BaseModel):
+    name: str
+    id: str
