@@ -185,12 +185,11 @@ class FlexAI:
         task_name = task["name"]
         
         print(f"Monitoring task {task_name}...")
-
-        print(f"LLM model {model_name}")
-        print(f"Dataset {dataset_name}")
+        print(f"Model: {model_name}")
+        print(f"Dataset: {dataset_name}")
         print(f"")
 
-        step_progress = tqdm(total=100, bar_format='{l_bar}{bar}| {n_fmt}/{total_fmt}', desc="Steps", ncols=70)
+        step_progress = tqdm(total=100, bar_format='{l_bar}{bar}| {n_fmt}/{total_fmt}', desc="Steps", ncols=100)
         epoch_info = tqdm(total=0, bar_format='{desc}', desc="Epoch: 0/0", leave=False)
         
         last_step = 0
