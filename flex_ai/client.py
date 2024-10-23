@@ -1,6 +1,6 @@
 import json
 import time
-from typing import List, Optional, Union
+from typing import List, Literal, Optional, Union
 import requests
 import os
 from flex_ai.api.datasets import create_dataset, download_checkpoint, download_checkpoint_gguf, generate_dataset_upload_urls, get_datasets
@@ -227,8 +227,8 @@ class FlexAI:
             print("\nTask monitoring interrupted by user.")
             return None
     
-    def create_multi_lora_endpoint(self, name:str, lora_checkpoints: List[LoraCheckpoint]) -> str:
-        data = create_multi_lora_endpoint(self.api_key, name, lora_checkpoints)
+    def create_multi_lora_endpoint(self, name:str, lora_checkpoints: List[LoraCheckpoint], compute: Literal["T4", "A100-40GB", "A100-80GB", "A10G", "A100-80GB", "L4"] = "A100-40GB") -> str:
+        data = create_multi_lora_endpoint(self.api_key, name, lora_checkpoints, compute)
         print("New Endpoint created successfully.")
         
         return data["endpoint_id"]
