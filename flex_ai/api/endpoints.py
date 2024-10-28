@@ -19,7 +19,7 @@ def get_endpoint(api_key:str, id:str):
     data = response.json()
     return data[0]
 
-def create_multi_lora_endpoint(api_key:str, name:str, lora_checkpoints: List[LoraCheckpoint], compute: Literal["T4", "A100-40GB", "A100-80GB", "A10G", "A100-80GB", "L4"] = "A100-40GB", idle_timeout_seconds: Optional[int] = 60):
+def create_multi_lora_endpoint(api_key:str, name:str, lora_checkpoints: List[LoraCheckpoint], compute: Literal["T4", "A100-40GB", "A100-80GB", "A10G", "A100-80GB", "L4"] = "A100-40GB", idle_timeout_seconds: int = 60):
     url = f"{BASE_URL}/v1/endpoints/create_multi_lora_endpoint"
     headers = {
         "Authorization": f"Bearer {api_key}",
